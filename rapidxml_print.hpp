@@ -21,7 +21,7 @@ namespace rapidxml
     // Printing flags
 
     const int print_no_indenting = 0x1;   //!< Printer flag instructing the printer to suppress indenting of XML. See print() function.
-
+    const int print_no_quote_expansion = 0x2;
     ///////////////////////////////////////////////////////////////////////
     // Internal
 
@@ -291,15 +291,30 @@ namespace rapidxml
 
                 // Test if node contains a single data node only (and no other nodes)
                 xml_node<Ch> *child = node->first_node();
+
                 if (!child)
                 {
-                    // If node has no children, only print its value without indenting
-                    out = copy_and_expand_chars(node->value(), node->value() + node->value_size(), Ch(0), out);
+                    if(flags & print_no_quote_expansion)
+                    {
+                        out = copy_chars(node->value(), node->value() + node->value_size(), out);
+                    }
+                    else
+                    {
+                        // If node has no children, only print its value without indenting
+                        out = copy_and_expand_chars(node->value(), node->value() + node->value_size(), Ch(0), out);
+                    }
                 }
                 else if (child->next_sibling() == 0 && child->type() == node_data)
                 {
-                    // If node has a sole data child, only print its value without indenting
-                    out = copy_and_expand_chars(child->value(), child->value() + child->value_size(), Ch(0), out);
+                    if(flags & print_no_quote_expansion)
+                    {
+                        out = copy_chars(child->value(), child->value() + child->value_size(), out);
+                    }
+                    else
+                    {
+                        // If node has a sole data child, only print its value without indenting
+                        out = copy_and_expand_chars(child->value(), child->value() + child->value_size(), Ch(0), out);
+                    }
                 }
                 else
                 {
